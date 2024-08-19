@@ -1,23 +1,66 @@
-# Base image
+# Base image for all environments
 FROM node:18-alpine AS base
 WORKDIR /app
 
-COPY package.json /app/package.json
-COPY package-lock.json /app/package-lock.json
+# Copy package files for installing dependencies
+COPY package.json package-lock.json ./
 
-ARG ENV=production
-RUN if [ "$ENV" = "development" ]; then npm install; else npm ci --only=production; fi
+# Use a build argument to define the environment (default to production)
+ARG ENV=prod
 
-COPY . /app
+# Install dependencies based on the environment
+RUN if [ "$ENV" = "dev" ]; then npm install; else npm ci --only=production; fi
 
-# Stage for production builds
-FROM node:18-alpine AS production
+# Copy the application code after dependencies have been installed
+COPY . .
+
+# Separate production stage
+FROM node:18-alpine AS prod
 WORKDIR /app
+
+# Copy files from the base stage
 COPY --from=base /app /app
 
-# Set environment variable for production
+# Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
 
+# Expose the port the application will run on
 EXPOSE 3000
+
+# Start the application
+CMD [ "npm", "start" ]
+
+# Separate stage for development
+FROM node:18-alpine AS dev
+WORKDIR /app
+
+# Copy files from the base stage
+COPY --from=base /app /app
+
+# Set environment variables for development
+ENV NODE_ENV=development
+ENV PORT=3000
+
+# Expose the port for development environment
+EXPOSE 3000
+
+# Start the application in development mode
+CMD [ "npm", "run", "dev" ]
+
+# Separate stage for staging (similar to production)
+FROM node:18-alpine AS stag
+WORKDIR /app
+
+# Copy files from the base stage
+COPY --from=base /app /app
+
+# Set environment variables for staging
+ENV NODE_ENV=staging
+ENV PORT=3000
+
+# Expose the port for staging environment
+EXPOSE 3000
+
+# Start the application in staging mode
 CMD [ "npm", "start" ]
