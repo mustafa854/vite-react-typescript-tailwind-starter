@@ -57,9 +57,3 @@ jobs:
           git add VERSION
           git commit -m "Bump $ENVIRONMENT version to v${NEW_VERSION}"
           git push origin ${{ github.ref }}
-
-      - name: Deploy to Kubernetes/AWS
-        run: |
-          # Deploy to Kubernetes or AWS using kubectl or CLI
-          kubectl set image deployment/my-app my-app=mustafaeligere/dockersample:live-${{ env.ENVIRONMENT }} --record
-          # Similar command for AWS EKS or ECS if needed
