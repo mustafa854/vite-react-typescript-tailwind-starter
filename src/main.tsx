@@ -17,7 +17,7 @@ createRoot(document.getElementById('root') as HTMLElement).render(
                 <h1 className="text-xl">About</h1>
                 <div>
                   <Link to="/" className="text-purple-400 underline">
-                    Home
+                    H
                   </Link>
                 </div>
               </div>
